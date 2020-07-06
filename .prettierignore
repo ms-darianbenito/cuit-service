@@ -1,0 +1,16 @@
+.dockerignore
+.DS_Store
+.editorconfig
+.gitattributes
+.gitignore
+.prettierignore
+**/*.binlog
+**/*.cs
+**/*.csproj
+**/*.sh
+**/*.sln
+**/bin/**
+**/obj/**
+Dockerfile
+Jenkinsfile
+yarn.lock

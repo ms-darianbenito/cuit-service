@@ -1,0 +1,22 @@
+{
+  "name": "cuit-service",
+  "private": true,
+  "dependencies": {
+    "eclint": "^2.8.1",
+    "prettier": "^2.0.4"
+  },
+  "scriptsx": {
+    "verify": "yarn prettier-check && yarn eclint-check",
+    "eclint-fix": "eclint fix \"!(*.monopic,*.key,*.src)\"",
+    "eclint-check": "eclint check \"!(*.monopic,*.key,*.src)\"",
+    "prettier-fix": "prettier --write \"**/{*.{js?(on),ts,y?(a)ml,graphql,md,scss,y?(a)ml,json},.prettierrc,.stylelintrc}\"",
+    "prettier-check": "prettier --check \"**/{*.{js?(on),ts,y?(a)ml,graphql,md,scss,y?(a)ml,json},.prettierrc,.stylelintrc}\""
+  },
+  "scripts": {
+    "verify": "yarn prettier-check && yarn eclint-check",
+    "eclint-fix": "eclint fix \"**/*\"",
+    "eclint-check": "eclint check \"**/*\"",
+    "prettier-fix": "prettier --write \"**/**\"",
+    "prettier-check": "prettier --check \"**/**\""
+  }
+}
