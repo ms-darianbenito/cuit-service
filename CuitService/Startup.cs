@@ -31,6 +31,8 @@ namespace CuitService
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStaticFiles();
+
             app.UseRouting();
 
             app.UseAuthorization();
