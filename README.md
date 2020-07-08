@@ -6,8 +6,8 @@ It will return information based on a provided CUIT number.
 
 - [x] EditorConfig, Prettier, etc
 - [ ] Continuous Deployment (Jenkins, DockerHub)
-- [ ] Define resources (URLs, schema, etc)
-- [ ] Expose hardcoded information (it could be also useful in test environments)
+- [x] Define resources (URLs, schema, etc)
+- [x] Expose hardcoded information (it could be also useful in test environments)
 - [ ] Validate JWT token
 - [ ] Rate limit for normal users, unlimited for Doppler SU
 - [ ] Connect with our backend service
