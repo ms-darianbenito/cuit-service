@@ -12,6 +12,7 @@
 **/*.sh
 **/*.sln
 **/*.txt
+**/*.xml
 **/bin/**
 **/obj/**
 **/Properties/launchSettings.json
