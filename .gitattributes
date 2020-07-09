@@ -1,3 +1,9 @@
+*.sh text eol=lf
+
+# SOPS
+*.[eE]ncrypted.[sS]ecret.* text eol=lf
+**/[eE]ncrypted.[sS]ecret.* text eol=lf
+
 ###############################################################################
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
