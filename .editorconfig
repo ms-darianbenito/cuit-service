@@ -26,3 +26,7 @@ indent_size = 4
 [*.sln]
 charset = utf-8-bom
 indent_style = tab
+
+[{.vscode/**,**/Properties/launchSettings.json}]
+indent_size = unset
+insert_final_newline = unset

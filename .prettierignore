@@ -4,13 +4,17 @@
 .gitattributes
 .gitignore
 .prettierignore
+.vscode
 **/*.binlog
 **/*.cs
 **/*.csproj
+**/*.ico
 **/*.sh
 **/*.sln
+**/*.txt
 **/bin/**
 **/obj/**
+**/Properties/launchSettings.json
 Dockerfile
 Jenkinsfile
 yarn.lock
