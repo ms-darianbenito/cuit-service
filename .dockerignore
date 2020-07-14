@@ -23,3 +23,9 @@
 **/values.dev.yaml
 LICENSE
 README.md
+
+# Allow storing encrypted secrets only
+*.[sS]ecret.*
+**/[sS]ecret.*
+!*.[eE]ncrypted.[sS]ecret.*
+!**/[eE]ncrypted.[sS]ecret.*
