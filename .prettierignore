@@ -20,3 +20,4 @@
 Dockerfile
 Jenkinsfile
 yarn.lock
+*.[sS]ecret.*
