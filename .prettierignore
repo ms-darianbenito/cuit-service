@@ -8,10 +8,12 @@
 **/*.binlog
 **/*.cs
 **/*.csproj
+**/*.http
 **/*.ico
 **/*.sh
 **/*.sln
 **/*.txt
+**/*.xml
 **/bin/**
 **/obj/**
 **/Properties/launchSettings.json
