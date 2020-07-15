@@ -18,6 +18,7 @@ namespace CuitService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDopplerSecurity();
+            services.AddTaxInfoProvider();
             services.AddControllers();
         }
 
