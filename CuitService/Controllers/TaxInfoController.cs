@@ -10,6 +10,7 @@ using Tavis.UriTemplates;
 namespace CuitService.Controllers
 {
     [Authorize]
+    [ApiController]
     public class TaxInfoController
     {
         private readonly ILogger<TaxInfoController> _logger;
@@ -24,7 +25,7 @@ namespace CuitService.Controllers
         // TODO: validate CUIT before, in filter, binder, etc. And avoid
         // primitive obsession in cuit parameter.
         [HttpGet("/taxinfo/by-cuit/{cuit}")]
-        public async Task<TaxInfo> GetTaxInfoByCuit(string cuit)
+        public async Task<TaxInfo> GetTaxInfoByCuit([FromRoute] string cuit)
         {
             var url = new UriTemplate(_taxInfoProviderOptions.UriTemplate)
                 .AddParameter("host", _taxInfoProviderOptions.Host)
