@@ -22,20 +22,20 @@ namespace CuitService.Controllers
             _taxInfoProviderOptions = taxInfoProviderOptions.Value;
         }
 
-        // TODO: validate CUIT before, in filter, binder, etc. And avoid
-        // primitive obsession in cuit parameter.
+        // TODO: rename cuitNumber parameter as cuit
         [HttpGet("/taxinfo/by-cuit/{cuit}")]
-        public async Task<TaxInfo> GetTaxInfoByCuit([FromRoute] string cuit)
+        public async Task<TaxInfo> GetTaxInfoByCuit([FromRoute] CuitNumber cuitNumber)
         {
             var url = new UriTemplate(_taxInfoProviderOptions.UriTemplate)
                 .AddParameter("host", _taxInfoProviderOptions.Host)
-                .AddParameter("cuit", cuit.Replace("-", ""))
+                .AddParameter("cuit", cuitNumber.SimplifiedValue)
                 .Resolve();
 
-            var result = await url
+            var request = url
                 .WithHeader("UserName", _taxInfoProviderOptions.Username)
-                .WithHeader("Password", _taxInfoProviderOptions.Password)
-                .GetJsonAsync<TaxInfo>();
+                .WithHeader("Password", _taxInfoProviderOptions.Password);
+
+            var result = await request.GetJsonAsync<TaxInfo>();
 
             return result;
         }
