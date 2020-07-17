@@ -1,4 +1,5 @@
 using CuitService.DopplerSecurity;
+using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +13,12 @@ namespace CuitService.Test
     {
         public static WebApplicationFactory<Startup> Create()
             => new WebApplicationFactory<Startup>();
+
+        public static WebApplicationFactory<Startup> WithBypassAuthorization(this WebApplicationFactory<Startup> factory)
+            => factory.WithWebHostBuilder(
+                builder => builder.ConfigureTestServices(
+                    // TODO: review if this is the best way to bypass the authentication
+                    services => services.AddSingleton<IPolicyEvaluator, FakePolicyEvaluator>()));
 
         public static WebApplicationFactory<Startup> ConfigureService<TOptions>(this WebApplicationFactory<Startup> factory, Action<TOptions> configureOptions) where TOptions : class
             => factory.WithWebHostBuilder(
