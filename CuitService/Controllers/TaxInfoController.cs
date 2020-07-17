@@ -1,7 +1,11 @@
+using CuitService.TaxInfoProvider;
+using Flurl.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
+using Tavis.UriTemplates;
 
 namespace CuitService.Controllers
 {
@@ -9,10 +13,12 @@ namespace CuitService.Controllers
     public class TaxInfoController
     {
         private readonly ILogger<TaxInfoController> _logger;
+        private readonly TaxInfoProviderOptions _taxInfoProviderOptions;
 
-        public TaxInfoController(ILogger<TaxInfoController> logger)
+        public TaxInfoController(ILogger<TaxInfoController> logger, IOptions<TaxInfoProviderOptions> taxInfoProviderOptions)
         {
             _logger = logger;
+            _taxInfoProviderOptions = taxInfoProviderOptions.Value;
         }
 
         // TODO: validate CUIT before, in filter, binder, etc. And avoid
@@ -20,33 +26,17 @@ namespace CuitService.Controllers
         [HttpGet("/taxinfo/by-cuit/{cuit}")]
         public async Task<TaxInfo> GetTaxInfoByCuit(string cuit)
         {
-            return await Task.FromResult(new TaxInfo()
-            {
-                ActividadPrincipal = "620100-SERVICIOS DE CONSULTORES EN INFORMÁTICA Y SUMINISTROS DE PROGRAMAS DE INFORMÁTICA",
-                Apellido = null,
-                CUIT = cuit,
-                CatIVA = "RI",
-                CatImpGanancias = "RI",
-                DomicilioCodigoPostal = "7600",
-                DomicilioDatoAdicional = null,
-                DomicilioDireccion = "CALLE FALSA 123 Piso:2",
-                DomicilioLocalidad = "MAR DEL PLATA SUR",
-                DomicilioPais = "AR",
-                DomicilioProvincia = "01",
-                DomicilioTipo = "FISCAL",
-                Error = false,
-                EstadoCUIT = "ACTIVO",
-                Message = null,
-                Monotributo = false,
-                MonotributoActividad = null,
-                MonotributoCategoria = null,
-                Nombre = null,
-                PadronData = null,
-                ParticipacionesAccionarias = true,
-                PersonaFisica = false,
-                RazonSocial = "RZS C.S. SA",
-                StatCode = 0
-            });
+            var url = new UriTemplate(_taxInfoProviderOptions.UriTemplate)
+                .AddParameter("host", _taxInfoProviderOptions.Host)
+                .AddParameter("cuit", cuit.Replace("-", ""))
+                .Resolve();
+
+            var result = await url
+                .WithHeader("UserName", _taxInfoProviderOptions.Username)
+                .WithHeader("Password", _taxInfoProviderOptions.Password)
+                .GetJsonAsync<TaxInfo>();
+
+            return result;
         }
     }
 }
