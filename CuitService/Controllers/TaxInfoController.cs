@@ -14,30 +14,17 @@ namespace CuitService.Controllers
     public class TaxInfoController
     {
         private readonly ILogger<TaxInfoController> _logger;
-        private readonly TaxInfoProviderOptions _taxInfoProviderOptions;
+        private readonly ITaxInfoProviderService _taxInfoProviderService;
 
-        public TaxInfoController(ILogger<TaxInfoController> logger, IOptions<TaxInfoProviderOptions> taxInfoProviderOptions)
+        public TaxInfoController(ILogger<TaxInfoController> logger, ITaxInfoProviderService taxInfoProviderService)
         {
             _logger = logger;
-            _taxInfoProviderOptions = taxInfoProviderOptions.Value;
+            _taxInfoProviderService = taxInfoProviderService;
         }
 
         // TODO: rename cuitNumber parameter as cuit
         [HttpGet("/taxinfo/by-cuit/{cuit}")]
         public async Task<TaxInfo> GetTaxInfoByCuit([FromRoute] CuitNumber cuitNumber)
-        {
-            var url = new UriTemplate(_taxInfoProviderOptions.UriTemplate)
-                .AddParameter("host", _taxInfoProviderOptions.Host)
-                .AddParameter("cuit", cuitNumber.SimplifiedValue)
-                .Resolve();
-
-            var request = url
-                .WithHeader("UserName", _taxInfoProviderOptions.Username)
-                .WithHeader("Password", _taxInfoProviderOptions.Password);
-
-            var result = await request.GetJsonAsync<TaxInfo>();
-
-            return result;
-        }
+            => await _taxInfoProviderService.GetTaxInfoByCuit(cuitNumber);
     }
 }

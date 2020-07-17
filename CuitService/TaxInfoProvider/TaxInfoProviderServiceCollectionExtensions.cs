@@ -9,6 +9,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.ConfigureOptions<ConfigureTaxInfoProviderOptions>();
 
+            services.AddTransient<ITaxInfoProviderService, TaxInfoProviderService>();
+
             return services;
         }
     }
