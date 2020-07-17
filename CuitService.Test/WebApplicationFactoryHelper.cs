@@ -1,8 +1,10 @@
 using CuitService.DopplerSecurity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 
 namespace CuitService.Test
 {
@@ -22,5 +24,10 @@ namespace CuitService.Test
         public static WebApplicationFactory<Startup> WithDisabledLifeTimeValidation(this WebApplicationFactory<Startup> factory)
             => factory.ConfigureSecurityOptions(
                 o => o.SkipLifetimeValidation = true);
+
+        public static WebApplicationFactory<Startup> AddConfiguration(this WebApplicationFactory<Startup> factory, IEnumerable<KeyValuePair<string, string>> initialData)
+            => factory.WithWebHostBuilder(
+                builder => builder.ConfigureAppConfiguration(
+                    (builderContext, configurationBuilder) => configurationBuilder.AddInMemoryCollection(initialData)));
     }
 }

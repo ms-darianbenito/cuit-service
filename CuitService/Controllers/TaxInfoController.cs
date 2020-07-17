@@ -28,7 +28,7 @@ namespace CuitService.Controllers
         {
             var url = new UriTemplate(_taxInfoProviderOptions.UriTemplate)
                 .AddParameter("host", _taxInfoProviderOptions.Host)
-                .AddParameter("cuit", cuit)
+                .AddParameter("cuit", cuit.Replace("-", ""))
                 .Resolve();
 
             var result = await url
