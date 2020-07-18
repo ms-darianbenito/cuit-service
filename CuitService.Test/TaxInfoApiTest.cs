@@ -86,6 +86,7 @@ namespace CuitService.Test
             using var appFactory = _factory.WithDisabledLifeTimeValidation()
                 .AddConfiguration(new Dictionary<string, string>()
                 {
+                    ["TaxInfoProvider:UseDummyData"] = "false",
                     ["TaxInfoProvider:Host"] = host,
                     ["TaxInfoProvider:UserName"] = expectedUserName,
                     ["TaxInfoProvider:Password"] = expectedPassword
@@ -105,6 +106,28 @@ namespace CuitService.Test
             httpCallAssertion.WithUrlPattern(expectedUrl);
             httpCallAssertion.WithHeader("UserName", expectedUserName);
             httpCallAssertion.WithHeader("Password", expectedPassword);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_taxinfo_by_cuit_with_a_valid_CUIT_should_not_call_backend_when_UseDummyData_is_true()
+        {
+            // Arrange
+            using var appFactory = _factory.WithBypassAuthorization()
+                .AddConfiguration(new Dictionary<string, string>()
+                {
+                    ["TaxInfoProvider:UseDummyData"] = "true"
+                });
+            appFactory.Server.PreserveExecutionContext = true;
+            var client = appFactory.CreateClient();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://custom.domain.com/taxinfo/by-cuit/20-31111111-7");
+
+            // Act
+            var response = await client.SendAsync(request);
+
+            // Assert
+            _httpTest.ShouldNotHaveMadeACall();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 

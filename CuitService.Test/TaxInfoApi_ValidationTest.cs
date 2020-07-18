@@ -2,6 +2,7 @@ using AutoFixture;
 using Flurl.Http.Testing;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
@@ -183,7 +184,11 @@ namespace CuitService.Test
         {
             // Arrange
             _httpTest.RespondWithJson(new { });
-            var appFactory = _factory.WithBypassAuthorization();
+            var appFactory = _factory.WithBypassAuthorization()
+                .AddConfiguration(new Dictionary<string, string>()
+                {
+                    ["TaxInfoProvider:UseDummyData"] = "false"
+                });
             appFactory.Server.PreserveExecutionContext = true;
             var client = appFactory.CreateClient();
 
