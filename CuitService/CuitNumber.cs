@@ -7,11 +7,9 @@ using System.ComponentModel;
 
 namespace CuitService
 {
-    // TODO: implement IComparable
-    // see https://andrewlock.net/using-strongly-typed-entity-ids-to-avoid-primitive-obsession-part-2/
     [JsonConverter(typeof(CuitNumberJsonConverter))]
     [TypeConverter(typeof(CuitNumberTypeConverter))]
-    public sealed class CuitNumber : IEquatable<CuitNumber>
+    public sealed class CuitNumber : IEquatable<CuitNumber>, IComparable<CuitNumber>, IComparable
     {
         private static readonly Regex CuitRegex = new Regex(@"(\d\d)-?(\d\d\d\d\d\d\d\d)-?(\d)", RegexOptions.Compiled);
         public string OriginalValue { get; }
@@ -101,5 +99,13 @@ namespace CuitService
 
         public override int GetHashCode()
             => SimplifiedValue.GetHashCode();
+
+        // TODO: add tests for comparisons
+        public int CompareTo(CuitNumber? other)
+            => SimplifiedValue.CompareTo(other?.SimplifiedValue);
+
+        public int CompareTo(object? obj)
+            => SimplifiedValue.CompareTo((obj as CuitNumber)?.SimplifiedValue);
+
     }
 }
