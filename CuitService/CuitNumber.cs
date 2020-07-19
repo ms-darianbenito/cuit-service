@@ -13,9 +13,10 @@ namespace CuitService
     [ModelBinder(BinderType = typeof(CuitNumberModelBinder))]
     public sealed class CuitNumber
     {
-        // TODO: add a new field Formatted Value, and return that value in ToString
+        private static readonly Regex CuitRegex = new Regex(@"(\d\d)-?(\d\d\d\d\d\d\d\d)-?(\d)", RegexOptions.Compiled);
         public string OriginalValue { get; }
         public string SimplifiedValue { get; }
+        public string FormattedValue { get; }
 
         public CuitNumber(string value)
         {
@@ -33,6 +34,7 @@ namespace CuitService
 
             OriginalValue = value;
             SimplifiedValue = value.Replace("-", "");
+            FormattedValue = CuitRegex.Replace(SimplifiedValue, "$1-$2-$3");
         }
 
         public static ValidationResult ValidateNumber(string? value)
@@ -84,5 +86,8 @@ namespace CuitService
 
             return true;
         }
+
+        public override string ToString()
+            => FormattedValue;
     }
 }

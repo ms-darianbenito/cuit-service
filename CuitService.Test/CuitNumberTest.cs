@@ -45,11 +45,11 @@ namespace CuitService.Test
         }
 
         [Theory]
-        [InlineData("20311111117", "20311111117")]
-        [InlineData("33123456780", "33123456780")]
-        [InlineData("20-31111111-7", "20311111117")]
-        [InlineData("3-3-1-2-3-4-5-6-7-8-0", "33123456780")]
-        public void Ctor_should_parse_valid_input(string originalValue, string simplifiedValue)
+        [InlineData("20311111117", "20311111117", "20-31111111-7")]
+        [InlineData("33123456780", "33123456780", "33-12345678-0")]
+        [InlineData("20-31111111-7", "20311111117", "20-31111111-7")]
+        [InlineData("3-3-1-2-3-4-5-6-7-8-0", "33123456780", "33-12345678-0")]
+        public void Ctor_should_parse_valid_input(string originalValue, string simplifiedValue, string formattedValue)
         {
             // Act
             var cuitNumber = new CuitNumber(originalValue);
@@ -57,6 +57,8 @@ namespace CuitService.Test
             // Assert
             Assert.Equal(originalValue, cuitNumber.OriginalValue);
             Assert.Equal(simplifiedValue, cuitNumber.SimplifiedValue);
+            Assert.Equal(formattedValue, cuitNumber.FormattedValue);
+            Assert.Equal(formattedValue, cuitNumber.ToString());
         }
     }
 }
