@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,8 +7,6 @@ namespace CuitService
 {
     // TODO: implement IEQualable and IComparable, add JsonConverter and TypeConverter attributes
     // see https://andrewlock.net/using-strongly-typed-entity-ids-to-avoid-primitive-obsession-part-2/
-    // TODO: Move this to a binding provider to avoid coupling with MVC
-    [ModelBinder(BinderType = typeof(CuitNumberModelBinder))]
     public sealed class CuitNumber
     {
         private static readonly Regex CuitRegex = new Regex(@"(\d\d)-?(\d\d\d\d\d\d\d\d)-?(\d)", RegexOptions.Compiled);
