@@ -2,18 +2,35 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CuitService
 {
-    // TODO: move validation inside constructor and ModelState updates inside a modelbinder,
-    // see https://docs.microsoft.com/en-us/aspnet/core/mvc/advanced/custom-model-binding?view=aspnetcore-3.1#custom-model-binder-sample
     // TODO: implement IEQualable and IComparable, add JsonConverter and TypeConverter attributes
     // see https://andrewlock.net/using-strongly-typed-entity-ids-to-avoid-primitive-obsession-part-2/
-    public class CuitNumber
+    public sealed class CuitNumber
     {
-        public string? OriginalValue { get; set; }
-        public string SimplifiedValue => OriginalValue?.Replace("-", "") ?? string.Empty;
         // TODO: add a new field Formatted Value, and return that value in ToString
+        public string OriginalValue { get; }
+        public string SimplifiedValue { get; }
+
+        public CuitNumber(string value)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            var validationResult = ValidateNumber(value);
+
+            if (validationResult != ValidationResult.Success)
+            {
+                throw new ArgumentException(validationResult.ErrorMessage, nameof(value));
+            }
+
+            OriginalValue = value;
+            SimplifiedValue = value.Replace("-", "");
+        }
 
         public static ValidationResult ValidateNumber(string? value)
         {

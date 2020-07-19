@@ -24,6 +24,6 @@ namespace CuitService.Controllers
 
         [HttpGet("/taxinfo/by-cuit/{cuit}")]
         public async Task<TaxInfo> GetTaxInfoByCuit([FromRoute][CuitNumberValidation] string cuit)
-            => await _taxInfoProviderService.GetTaxInfoByCuit(new CuitNumber() { OriginalValue = cuit });
+            => await _taxInfoProviderService.GetTaxInfoByCuit(new CuitNumber(cuit));
     }
 }
