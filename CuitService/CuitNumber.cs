@@ -2,11 +2,13 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Text.Json.Serialization;
 
 namespace CuitService
 {
-    // TODO: implement IEQualable and IComparable, add JsonConverter and TypeConverter attributes
+    // TODO: implement IEQualable and IComparable
     // see https://andrewlock.net/using-strongly-typed-entity-ids-to-avoid-primitive-obsession-part-2/
+    [JsonConverter(typeof(CuitNumberJsonConverter))]
     public sealed class CuitNumber
     {
         private static readonly Regex CuitRegex = new Regex(@"(\d\d)-?(\d\d\d\d\d\d\d\d)-?(\d)", RegexOptions.Compiled);

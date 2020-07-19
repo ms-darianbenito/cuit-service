@@ -1,11 +1,7 @@
-using AutoFixture;
 using Flurl.Http.Testing;
-using Microsoft.AspNetCore.Mvc.Testing;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -59,6 +55,44 @@ namespace CuitService.Test
             Assert.Equal(simplifiedValue, cuitNumber.SimplifiedValue);
             Assert.Equal(formattedValue, cuitNumber.FormattedValue);
             Assert.Equal(formattedValue, cuitNumber.ToString());
+        }
+
+        [Theory]
+        [InlineData("20311111117", "20311111117", "20-31111111-7")]
+        [InlineData("33123456780", "33123456780", "33-12345678-0")]
+        [InlineData("20-31111111-7", "20311111117", "20-31111111-7")]
+        [InlineData("3-3-1-2-3-4-5-6-7-8-0", "33123456780", "33-12345678-0")]
+        public void Parse_a_JSON_string_should_create_a_valid_CuitNumber(string originalValue, string simplifiedValue, string formattedValue)
+        {
+            // Arrange
+            var json = $"\"{originalValue}\"";
+
+            // Act
+            var cuitNumber = JsonSerializer.Deserialize<CuitNumber>(json);
+
+            // Assert
+            Assert.Equal(originalValue, cuitNumber.OriginalValue);
+            Assert.Equal(simplifiedValue, cuitNumber.SimplifiedValue);
+            Assert.Equal(formattedValue, cuitNumber.FormattedValue);
+            Assert.Equal(formattedValue, cuitNumber.ToString());
+        }
+
+        [Theory]
+        [InlineData("20311111117", "20-31111111-7")]
+        [InlineData("33123456780", "33-12345678-0")]
+        [InlineData("20-31111111-7", "20-31111111-7")]
+        [InlineData("3-3-1-2-3-4-5-6-7-8-0", "33-12345678-0")]
+        public void Stringify_CuitNumber_should_create_a_valid_JSON(string originalValue, string formattedValue)
+        {
+            // Arrange
+            var expectedJson = $"\"{formattedValue}\"";
+
+            // Act
+            var cuitNumber = new CuitNumber(originalValue);
+            var json = JsonSerializer.Serialize(cuitNumber);
+
+            // Assert
+            Assert.Equal(expectedJson, json);
         }
     }
 }
