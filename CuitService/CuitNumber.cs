@@ -7,11 +7,11 @@ using System.ComponentModel;
 
 namespace CuitService
 {
-    // TODO: implement IEQualable and IComparable
+    // TODO: implement IComparable
     // see https://andrewlock.net/using-strongly-typed-entity-ids-to-avoid-primitive-obsession-part-2/
     [JsonConverter(typeof(CuitNumberJsonConverter))]
     [TypeConverter(typeof(CuitNumberTypeConverter))]
-    public sealed class CuitNumber
+    public sealed class CuitNumber : IEquatable<CuitNumber>
     {
         private static readonly Regex CuitRegex = new Regex(@"(\d\d)-?(\d\d\d\d\d\d\d\d)-?(\d)", RegexOptions.Compiled);
         public string OriginalValue { get; }
@@ -89,5 +89,17 @@ namespace CuitService
 
         public override string ToString()
             => FormattedValue;
+
+        public bool Equals(CuitNumber? other)
+            => SimplifiedValue.Equals(other?.SimplifiedValue);
+
+        public override bool Equals(object? obj)
+            => !(obj is null) && obj is CuitNumber other && Equals(other);
+
+        public static bool operator ==(CuitNumber a, CuitNumber b) => (a is null && b is null) || (!(a is null) && (a.CompareTo(b) == 0));
+        public static bool operator !=(CuitNumber a, CuitNumber b) => !(a == b);
+
+        public override int GetHashCode()
+            => SimplifiedValue.GetHashCode();
     }
 }

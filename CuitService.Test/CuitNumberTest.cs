@@ -189,5 +189,54 @@ namespace CuitService.Test
             httpCallAssertion.WithVerb(HttpMethod.Post);
             httpCallAssertion.WithRequestBody(expectedJson);
         }
+
+        [Theory]
+        [InlineData("20311111117", "20-31111111-7")]
+        [InlineData("33123456780", "33-12345678-0")]
+        [InlineData("20-31111111-7", "20-31111111-7")]
+        [InlineData("3-3-1-2-3-4-5-6-7-8-0", "33-12345678-0")]
+        public void Equivalent_CuitNumbers_should_be_evaluated_as_equal(string valueA, string valueB)
+        {
+            // Arrange
+            var cuitA = new CuitNumber(valueA);
+            var cuitB = new CuitNumber(valueB);
+
+            // Assert
+            Assert.Equal(cuitA, cuitB);
+            Assert.True(cuitA == cuitB);
+            Assert.False(cuitA != cuitB);
+            Assert.Equal(cuitA.GetHashCode(), cuitB.GetHashCode());
+        }
+
+        [Theory]
+        [InlineData("20311111117", "33-12345678-0")]
+        public void Non_Equivalent_CuitNumbers_should_be_evaluated_as_non_equal(string valueA, string valueB)
+        {
+            // Arrange
+            var cuitA = new CuitNumber(valueA);
+            var cuitB = new CuitNumber(valueB);
+
+            // Assert
+            Assert.NotEqual(cuitA, cuitB);
+            Assert.False(cuitA == cuitB);
+            Assert.True(cuitA != cuitB);
+            Assert.NotEqual(cuitA.GetHashCode(), cuitB.GetHashCode());
+        }
+
+        [Fact]
+        public void Compare_CuitNumbers_with_null_should_be_evaluated_as_non_equal()
+        {
+            // Arrange
+            var cuitA = new CuitNumber("20311111117");
+            var cuitB = (CuitNumber?)null;
+
+            // Assert
+            Assert.NotEqual(cuitA, cuitB);
+            Assert.NotEqual(cuitB, cuitA);
+            Assert.False(cuitA == cuitB!);
+            Assert.False(cuitB! == cuitA);
+            Assert.True(cuitA != cuitB!);
+            Assert.True(cuitB! != cuitA);
+        }
     }
 }
