@@ -13,7 +13,7 @@ namespace CuitService.TaxInfoProvider
             {
                 ActividadPrincipal = "620100-SERVICIOS DE CONSULTORES EN INFORMÁTICA Y SUMINISTROS DE PROGRAMAS DE INFORMÁTICA",
                 Apellido = null,
-                CUIT = cuit.cuit,
+                CUIT = cuit.OriginalValue,
                 CatIVA = "RI",
                 CatImpGanancias = "RI",
                 DomicilioCodigoPostal = "7600",

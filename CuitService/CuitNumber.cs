@@ -9,39 +9,32 @@ namespace CuitService
     // see https://docs.microsoft.com/en-us/aspnet/core/mvc/advanced/custom-model-binding?view=aspnetcore-3.1#custom-model-binder-sample
     // TODO: implement IEQualable and IComparable, add JsonConverter and TypeConverter attributes
     // see https://andrewlock.net/using-strongly-typed-entity-ids-to-avoid-primitive-obsession-part-2/
-    public class CuitNumber : IValidatableObject
+    public class CuitNumber
     {
-        // TODO: rename as OriginalValue
-        // Ugly patch, this value should come from de validated parameter, ie: /taxinfo/by-cuit/{cuit}
-        // it wil be fixed after moving to a custom model binder
-        public string? cuit { get; set; }
-        public string SimplifiedValue => cuit?.Replace("-", "") ?? string.Empty;
+        public string? OriginalValue { get; set; }
+        public string SimplifiedValue => OriginalValue?.Replace("-", "") ?? string.Empty;
         // TODO: add a new field Formatted Value, and return that value in ToString
 
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        public static ValidationResult ValidateNumber(string? value)
         {
-            // By the moment it is also dealing with `required` validation
-            if (string.IsNullOrWhiteSpace(SimplifiedValue))
+            if (value == null)
             {
-                return new[] { new ValidationResult("The CUIT number cannot be empty.", new[] { nameof(cuit) }) };
+                return ValidationResult.Success;
             }
 
-            if (!SimplifiedValue.All(char.IsNumber))
+            var simplifiedValue = value.Replace("-", "");
+            var error = string.IsNullOrWhiteSpace(simplifiedValue) ? "The CUIT number cannot be empty."
+                : !simplifiedValue.All(char.IsNumber) ? "The CUIT number cannot have other characters than numbers and dashes."
+                : simplifiedValue.Length != 11 ? "The CUIT number must have 11 digits."
+                : !IsVerificationDigitValid(simplifiedValue) ? "The CUIT's verification digit is wrong."
+                : null;
+
+            if (error != null)
             {
-                return new[] { new ValidationResult("The CUIT number cannot have other characters than numbers and dashes.", new[] { nameof(cuit) }) };
+                return new ValidationResult(error);
             }
 
-            if (SimplifiedValue.Length != 11)
-            {
-                return new[] { new ValidationResult("The CUIT number must have 11 digits.", new[] { nameof(cuit) }) };
-            }
-
-            if (!IsVerificationDigitValid(SimplifiedValue))
-            {
-                return new[] { new ValidationResult("The CUIT's verification digit is wrong.", new[] { nameof(cuit) }) };
-            }
-
-            return new ValidationResult[0];
+            return ValidationResult.Success;
         }
 
 

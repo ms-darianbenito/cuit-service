@@ -22,9 +22,8 @@ namespace CuitService.Controllers
             _taxInfoProviderService = taxInfoProviderService;
         }
 
-        // TODO: rename cuitNumber parameter as cuit
         [HttpGet("/taxinfo/by-cuit/{cuit}")]
-        public async Task<TaxInfo> GetTaxInfoByCuit([FromRoute] CuitNumber cuitNumber)
-            => await _taxInfoProviderService.GetTaxInfoByCuit(cuitNumber);
+        public async Task<TaxInfo> GetTaxInfoByCuit([FromRoute][CuitNumberValidation] string cuit)
+            => await _taxInfoProviderService.GetTaxInfoByCuit(new CuitNumber() { OriginalValue = cuit });
     }
 }
