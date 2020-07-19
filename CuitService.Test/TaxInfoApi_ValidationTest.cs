@@ -1,10 +1,10 @@
-using AutoFixture;
 using Flurl.Http.Testing;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -27,6 +27,22 @@ namespace CuitService.Test
             _httpTest.Dispose();
         }
 
+        private static async Task AssertCuitErrorMessage(string expectedErrorMessage, HttpResponseMessage response)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            var problemDetail = JsonSerializer.Deserialize<JsonElement>(content);
+            var title = problemDetail.GetProperty("title").GetString();
+            Assert.Equal("One or more validation errors occurred.", title);
+            var errors = problemDetail.GetProperty("errors").EnumerateObject();
+            Assert.Single(errors);
+            var error = errors.First();
+            Assert.Equal("cuit", error.Name);
+            var messages = error.Value.EnumerateArray();
+            Assert.Single(messages);
+            var message = messages.First().GetString();
+            Assert.Equal(expectedErrorMessage, message);
+        }
+
         [Theory]
         [InlineData("20-31111111-8")]
         [InlineData("20-31111111-6")]
@@ -46,16 +62,7 @@ namespace CuitService.Test
 
             _httpTest.ShouldNotHaveMadeACall();
 
-            var content = await response.Content.ReadAsStringAsync();
-            var problemDetail = JsonSerializer.Deserialize<JsonElement>(content);
-            Assert.Equal("One or more validation errors occurred.", problemDetail.GetProperty("title").GetString());
-            Assert.Collection(problemDetail.GetProperty("errors").EnumerateObject(),
-                item =>
-                {
-                    Assert.Equal("cuit", item.Name);
-                    Assert.Equal(1, item.Value.GetArrayLength());
-                    Assert.Equal("The CUIT's verification digit is wrong.", item.Value.EnumerateArray().First().GetString());
-                });
+            await AssertCuitErrorMessage("The CUIT's verification digit is wrong.", response);
         }
 
         [Theory]
@@ -76,16 +83,7 @@ namespace CuitService.Test
 
             _httpTest.ShouldNotHaveMadeACall();
 
-            var content = await response.Content.ReadAsStringAsync();
-            var problemDetail = JsonSerializer.Deserialize<JsonElement>(content);
-            Assert.Equal("One or more validation errors occurred.", problemDetail.GetProperty("title").GetString());
-            Assert.Collection(problemDetail.GetProperty("errors").EnumerateObject(),
-                item =>
-                {
-                    Assert.Equal("cuit", item.Name);
-                    Assert.Equal(1, item.Value.GetArrayLength());
-                    Assert.Equal("The CUIT number must have 11 digits.", item.Value.EnumerateArray().First().GetString());
-                });
+            await AssertCuitErrorMessage("The CUIT number must have 11 digits.", response);
         }
 
         [Theory]
@@ -109,16 +107,7 @@ namespace CuitService.Test
 
             _httpTest.ShouldNotHaveMadeACall();
 
-            var content = await response.Content.ReadAsStringAsync();
-            var problemDetail = JsonSerializer.Deserialize<JsonElement>(content);
-            Assert.Equal("One or more validation errors occurred.", problemDetail.GetProperty("title").GetString());
-            Assert.Collection(problemDetail.GetProperty("errors").EnumerateObject(),
-                item =>
-                {
-                    Assert.Equal("cuit", item.Name);
-                    Assert.Equal(1, item.Value.GetArrayLength());
-                    Assert.Equal("The CUIT number cannot be empty.", item.Value.EnumerateArray().First().GetString());
-                });
+            await AssertCuitErrorMessage("The CUIT number cannot be empty.", response);
         }
 
         [Theory]
@@ -143,16 +132,7 @@ namespace CuitService.Test
 
             _httpTest.ShouldNotHaveMadeACall();
 
-            var content = await response.Content.ReadAsStringAsync();
-            var problemDetail = JsonSerializer.Deserialize<JsonElement>(content);
-            Assert.Equal("One or more validation errors occurred.", problemDetail.GetProperty("title").GetString());
-            Assert.Collection(problemDetail.GetProperty("errors").EnumerateObject(),
-                item =>
-                {
-                    Assert.Equal("cuit", item.Name);
-                    Assert.Equal(1, item.Value.GetArrayLength());
-                    Assert.Equal("The CUIT number cannot have other characters than numbers and dashes.", item.Value.EnumerateArray().First().GetString());
-                });
+            await AssertCuitErrorMessage("The CUIT number cannot have other characters than numbers and dashes.", response);
         }
 
         [Theory]
