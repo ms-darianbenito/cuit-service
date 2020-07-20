@@ -24,4 +24,3 @@ namespace Microsoft.Extensions.DependencyInjection
         }
     }
 }
-
