@@ -20,6 +20,7 @@ namespace CuitService
             services.AddDopplerSecurity();
             services.AddTaxInfoProvider();
             services.AddControllers();
+            services.AddCors();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -32,6 +33,12 @@ namespace CuitService
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseCors(policy => policy
+                .SetIsOriginAllowed(isOriginAllowed: _ => true)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials());
 
             app.UseAuthorization();
 
