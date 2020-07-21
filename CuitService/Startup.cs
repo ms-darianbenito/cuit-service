@@ -19,7 +19,13 @@ namespace CuitService
         {
             services.AddDopplerSecurity();
             services.AddTaxInfoProvider();
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.WriteIndented = true;
+                    options.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
+                    options.JsonSerializerOptions.PropertyNamingPolicy = null!;
+                });
             services.AddCors();
         }
 
