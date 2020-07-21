@@ -132,6 +132,36 @@ namespace CuitService.Test
         }
 
         [Fact]
+        public async Task GET_taxinfo_by_cuit_should_make_honor_original_format()
+        {
+            // Arrange
+            using var appFactory = _factory.WithBypassAuthorization()
+                .AddConfiguration(new Dictionary<string, string>()
+                {
+                    ["TaxInfoProvider:UseDummyData"] = "true"
+                });
+            appFactory.Server.PreserveExecutionContext = true;
+            var client = appFactory.CreateClient();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://custom.domain.com/taxinfo/by-cuit/20-31111111-7");
+
+            // Act
+            var response = await client.SendAsync(request);
+            var content = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            // Validate indentation
+            Assert.Matches(@"^{\n\s+""(.+\n)*}$", content);
+            // Validate case sensitivity and making honor to model name case
+            Assert.Matches(@"""EstadoCUIT"": ""ACTIVO""", content);
+            Assert.Matches(@"""CUIT"": ""20-31111111-7""", content);
+            // Validate contains null values
+            Assert.Matches(@"""Apellido"": null", content);
+            // Validate contains false values
+            Assert.Matches(@"""Error"": false", content);
+        }
+
+        [Fact]
         public async Task GET_taxinfo_by_cuit_with_a_valid_CUIT_should_return_200_OK_when_JWT_token_is_a_valid_Doppler_TEST_one()
         {
             // Arrange
