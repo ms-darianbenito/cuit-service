@@ -1,4 +1,4 @@
-using AutoFixture;
+using AutoFixture.Xunit2;
 using Flurl.Http.Testing;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System;
@@ -8,19 +8,16 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Xunit;
-
 namespace CuitService.Test
 {
     public class TaxInfoApiTest : IClassFixture<WebApplicationFactory<Startup>>, IDisposable
     {
         private readonly WebApplicationFactory<Startup> _factory;
-        private readonly Fixture _specimenBuilders;
         private readonly HttpTest _httpTest;
 
         public TaxInfoApiTest(WebApplicationFactory<Startup> factory)
         {
             _factory = factory;
-            _specimenBuilders = new Fixture();
             _httpTest = new HttpTest();
         }
 
@@ -57,11 +54,11 @@ namespace CuitService.Test
             StatCode = 0
         };
 
-        [Fact]
-        public async Task GET_random_URL_should_return_404_NotFound()
+        [Theory]
+        [AutoData]
+        public async Task GET_random_URL_should_return_404_NotFound(string url)
         {
             // Arrange
-            var url = _specimenBuilders.Create<string>();
             var client = _factory.CreateClient();
 
             // Act
@@ -71,15 +68,13 @@ namespace CuitService.Test
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact]
-        public async Task GET_taxinfo_by_cuit_with_a_valid_CUIT_should_return_200_OK_when_JWT_token_is_a_valid_Doppler_PROD_one()
+        [Theory]
+        [AutoData]
+        public async Task GET_taxinfo_by_cuit_with_a_valid_CUIT_should_return_200_OK_when_JWT_token_is_a_valid_Doppler_PROD_one(string host, string expectedUserName, string expectedPassword)
         {
             // Arrange
-            var host = _specimenBuilders.Create<string>();
             var cuit = "20-31111111-7";
             var expectedUrl = $"http://{host}:33333/api/TaxInfo?ID=20311111117+CardData=Y";
-            var expectedUserName = _specimenBuilders.Create<string>();
-            var expectedPassword = _specimenBuilders.Create<string>();
 
             _httpTest.RespondWithJson(DemoResult);
 
