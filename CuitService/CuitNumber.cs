@@ -1,47 +1,60 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Text.Json.Serialization;
+using System.ComponentModel;
 
 namespace CuitService
 {
-    // TODO: move validation inside constructor and ModelState updates inside a modelbinder,
-    // see https://docs.microsoft.com/en-us/aspnet/core/mvc/advanced/custom-model-binding?view=aspnetcore-3.1#custom-model-binder-sample
-    // TODO: implement IEQualable and IComparable, add JsonConverter and TypeConverter attributes
-    // see https://andrewlock.net/using-strongly-typed-entity-ids-to-avoid-primitive-obsession-part-2/
-    public class CuitNumber : IValidatableObject
+    [JsonConverter(typeof(CuitNumberJsonConverter))]
+    [TypeConverter(typeof(CuitNumberTypeConverter))]
+    public sealed class CuitNumber : IEquatable<CuitNumber>, IComparable<CuitNumber>, IComparable
     {
-        // TODO: rename as OriginalValue
-        // Ugly patch, this value should come from de validated parameter, ie: /taxinfo/by-cuit/{cuit}
-        // it wil be fixed after moving to a custom model binder
-        public string? cuit { get; set; }
-        public string SimplifiedValue => cuit?.Replace("-", "") ?? string.Empty;
-        // TODO: add a new field Formatted Value, and return that value in ToString
+        private static readonly Regex CuitRegex = new Regex(@"(\d\d)-?(\d\d\d\d\d\d\d\d)-?(\d)", RegexOptions.Compiled);
+        public string OriginalValue { get; }
+        public string SimplifiedValue { get; }
+        public string FormattedValue { get; }
 
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        public CuitNumber(string value)
         {
-            // By the moment it is also dealing with `required` validation
-            if (string.IsNullOrWhiteSpace(SimplifiedValue))
+            if (value == null)
             {
-                return new[] { new ValidationResult("The CUIT number cannot be empty.", new[] { nameof(cuit) }) };
+                throw new ArgumentNullException(nameof(value));
             }
 
-            if (!SimplifiedValue.All(char.IsNumber))
+            var validationResult = ValidateNumber(value);
+
+            if (validationResult != ValidationResult.Success)
             {
-                return new[] { new ValidationResult("The CUIT number cannot have other characters than numbers and dashes.", new[] { nameof(cuit) }) };
+                throw new ArgumentException(validationResult.ErrorMessage, nameof(value));
             }
 
-            if (SimplifiedValue.Length != 11)
+            OriginalValue = value;
+            SimplifiedValue = value.Replace("-", "");
+            FormattedValue = CuitRegex.Replace(SimplifiedValue, "$1-$2-$3");
+        }
+
+        public static ValidationResult ValidateNumber(string? value)
+        {
+            if (value == null)
             {
-                return new[] { new ValidationResult("The CUIT number must have 11 digits.", new[] { nameof(cuit) }) };
+                return ValidationResult.Success;
             }
 
-            if (!IsVerificationDigitValid(SimplifiedValue))
+            var simplifiedValue = value.Replace("-", "");
+            var error = string.IsNullOrWhiteSpace(simplifiedValue) ? "The CUIT number cannot be empty."
+                : !simplifiedValue.All(char.IsNumber) ? "The CUIT number cannot have other characters than numbers and dashes."
+                : simplifiedValue.Length != 11 ? "The CUIT number must have 11 digits."
+                : !IsVerificationDigitValid(simplifiedValue) ? "The CUIT's verification digit is wrong."
+                : null;
+
+            if (error != null)
             {
-                return new[] { new ValidationResult("The CUIT's verification digit is wrong.", new[] { nameof(cuit) }) };
+                return new ValidationResult(error);
             }
 
-            return new ValidationResult[0];
+            return ValidationResult.Success;
         }
 
 
@@ -71,5 +84,28 @@ namespace CuitService
 
             return true;
         }
+
+        public override string ToString()
+            => FormattedValue;
+
+        public bool Equals(CuitNumber? other)
+            => SimplifiedValue.Equals(other?.SimplifiedValue);
+
+        public override bool Equals(object? obj)
+            => !(obj is null) && obj is CuitNumber other && Equals(other);
+
+        public static bool operator ==(CuitNumber a, CuitNumber b) => (a is null && b is null) || (!(a is null) && (a.CompareTo(b) == 0));
+        public static bool operator !=(CuitNumber a, CuitNumber b) => !(a == b);
+
+        public override int GetHashCode()
+            => SimplifiedValue.GetHashCode();
+
+        // TODO: add tests for comparisons
+        public int CompareTo(CuitNumber? other)
+            => SimplifiedValue.CompareTo(other?.SimplifiedValue);
+
+        public int CompareTo(object? obj)
+            => SimplifiedValue.CompareTo((obj as CuitNumber)?.SimplifiedValue);
+
     }
 }

@@ -19,7 +19,8 @@ namespace CuitService
         {
             services.AddDopplerSecurity();
             services.AddTaxInfoProvider();
-            services.AddControllers()
+            services.AddControllers(
+                options => options.ModelBinderProviders.Insert(0, new CuitNumberModelBinderProvider()))
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.WriteIndented = true;
